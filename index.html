@@ -1,83 +1,321 @@
 <!doctype html>
 <html lang="en">
-<head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Hem Ridge Deck</title>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Hem Ridge Deck</title>
+    <style>
+      :root {
+        --bg: #0b0b0b;
+        --panel: rgba(20, 20, 20, 0.92);
+        --text: #f2f2f2;
+        --muted: rgba(242, 242, 242, 0.65);
+        --border: rgba(255, 255, 255, 0.12);
+      }
+      html, body {
+        margin: 0;
+        height: 100%;
+        background: var(--bg);
+        color: var(--text);
+        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji",
+          "Segoe UI Emoji";
+      }
 
-<style>
-html,body{
-  margin:0;
-  height:100%;
-  background:#0b0b0b;
-  font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
-}
+      /* Top bar */
+      .topbar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 56px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 14px;
+        background: var(--panel);
+        border-bottom: 1px solid var(--border);
+        backdrop-filter: blur(10px);
+        z-index: 10;
+        gap: 12px;
+      }
+      .title {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        min-width: 0;
+      }
+      .title strong {
+        font-size: 14px;
+        font-weight: 600;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .title span {
+        font-size: 12px;
+        color: var(--muted);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
 
-/* top bar */
-.topbar{
-  position:fixed;
-  top:0;
-  left:0;
-  right:0;
-  height:52px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  padding:0 16px;
-  background:rgba(20,20,20,.95);
-  backdrop-filter:blur(8px);
-  color:white;
-  z-index:10;
-}
+      .controls {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
 
-.title{
-  font-size:14px;
-  opacity:.9;
-}
+      .btn {
+        appearance: none;
+        border: 1px solid var(--border);
+        background: rgba(255, 255, 255, 0.06);
+        color: var(--text);
+        padding: 8px 10px;
+        border-radius: 10px;
+        font-size: 13px;
+        text-decoration: none;
+        line-height: 1;
+        cursor: pointer;
+      }
+      .btn:hover { background: rgba(255, 255, 255, 0.10); }
+      .btn:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
+      }
 
-.actions a{
-  color:white;
-  text-decoration:none;
-  border:1px solid rgba(255,255,255,.2);
-  padding:6px 10px;
-  border-radius:8px;
-  font-size:13px;
-  margin-left:8px;
-}
+      .pill {
+        border: 1px solid var(--border);
+        background: rgba(255,255,255,0.04);
+        color: var(--muted);
+        padding: 7px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        line-height: 1;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .pill strong { color: var(--text); font-weight: 600; }
 
-/* viewer */
-.viewer{
-  position:fixed;
-  top:52px;
-  bottom:0;
-  left:0;
-  right:0;
-}
+      /* Viewer */
+      .viewer {
+        position: fixed;
+        top: 56px;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        overflow: auto;
+        -webkit-overflow-scrolling: touch;
+        padding: 18px 0;
+      }
+      .stage {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+      }
+      canvas {
+        background: #111;
+        border-radius: 12px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+        max-width: calc(100vw - 28px);
+        height: auto;
+      }
 
-iframe{
-  width:100%;
-  height:100%;
-  border:0;
-}
-</style>
-</head>
+      .status {
+        padding: 18px;
+        color: var(--muted);
+        font-size: 14px;
+        text-align: center;
+      }
+      .status a { color: var(--text); }
+    </style>
+  </head>
 
-<body>
+  <body>
+    <script>
+      // ✅ Your single PDF file (no splitting)
+      const PDF_FILE = "HemRidge_Deck_V1_WIP.pdf";
+    </script>
 
-<div class="topbar">
-  <div class="title">Hem Ridge Deck</div>
-  <div class="actions">
-    <a href="HemRidge_Deck_V1_WIP.pdf" target="_blank">Open</a>
-    <a href="HemRidge_Deck_V1_WIP.pdf" download>Download</a>
-  </div>
-</div>
+    <header class="topbar">
+      <div class="title">
+        <strong>Hem Ridge Deck</strong>
+        <span id="filename"></span>
+      </div>
 
-<div class="viewer">
-  <iframe
-    src="HemRidge_Deck_V1_WIP.pdf#view=FitH&toolbar=1"
-    allowfullscreen>
-  </iframe>
-</div>
+      <div class="controls">
+        <button class="btn" id="prevBtn" type="button">Prev</button>
+        <div class="pill"><strong id="pageNum">1</strong> / <span id="pageCount">?</span></div>
+        <button class="btn" id="nextBtn" type="button">Next</button>
 
-</body>
+        <button class="btn" id="zoomOutBtn" type="button">−</button>
+        <div class="pill">Zoom <strong id="zoomPct">100%</strong></div>
+        <button class="btn" id="zoomInBtn" type="button">+</button>
+
+        <a class="btn" id="openBtn" href="#" target="_blank" rel="noopener">Open</a>
+        <a class="btn" id="downloadBtn" href="#" download>Download</a>
+      </div>
+    </header>
+
+    <main class="viewer" id="viewer">
+      <div class="stage">
+        <canvas id="pdfCanvas"></canvas>
+      </div>
+      <div class="status" id="status">Loading…</div>
+    </main>
+
+    <!-- PDF.js (CDN) -->
+    <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.min.js"></script>
+    <script>
+      // PDF.js worker
+      pdfjsLib.GlobalWorkerOptions.workerSrc =
+        "https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.worker.min.js";
+
+      const file = PDF_FILE;
+      document.getElementById("filename").textContent = file;
+
+      const openBtn = document.getElementById("openBtn");
+      const downloadBtn = document.getElementById("downloadBtn");
+      openBtn.href = file;
+      downloadBtn.href = file;
+
+      const canvas = document.getElementById("pdfCanvas");
+      const ctx = canvas.getContext("2d", { alpha: false });
+
+      const statusEl = document.getElementById("status");
+
+      const prevBtn = document.getElementById("prevBtn");
+      const nextBtn = document.getElementById("nextBtn");
+      const zoomOutBtn = document.getElementById("zoomOutBtn");
+      const zoomInBtn = document.getElementById("zoomInBtn");
+
+      const pageNumEl = document.getElementById("pageNum");
+      const pageCountEl = document.getElementById("pageCount");
+      const zoomPctEl = document.getElementById("zoomPct");
+
+      let pdfDoc = null;
+      let pageNum = 1;
+      let pageCount = 0;
+      let scale = 1.0; // 1.0 == 100%
+      let rendering = false;
+      let pendingPage = null;
+
+      function setButtons() {
+        prevBtn.disabled = pageNum <= 1 || !pdfDoc;
+        nextBtn.disabled = pageNum >= pageCount || !pdfDoc;
+        zoomOutBtn.disabled = scale <= 0.5;
+        zoomInBtn.disabled = scale >= 3.0;
+        pageNumEl.textContent = String(pageNum);
+        pageCountEl.textContent = pageCount ? String(pageCount) : "?";
+        zoomPctEl.textContent = `${Math.round(scale * 100)}%`;
+      }
+
+      async function renderPage(num) {
+        rendering = true;
+        setButtons();
+        statusEl.textContent = "Rendering…";
+
+        const page = await pdfDoc.getPage(num);
+
+        // Fit to width-ish on mobile while preserving zoom
+        const viewport = page.getViewport({ scale });
+
+        const outputScale = window.devicePixelRatio || 1;
+        canvas.width = Math.floor(viewport.width * outputScale);
+        canvas.height = Math.floor(viewport.height * outputScale);
+
+        canvas.style.width = `${Math.floor(viewport.width)}px`;
+        canvas.style.height = `${Math.floor(viewport.height)}px`;
+
+        const transform = outputScale !== 1 ? [outputScale, 0, 0, outputScale, 0, 0] : null;
+
+        const renderTask = page.render({
+          canvasContext: ctx,
+          viewport,
+          transform,
+        });
+
+        await renderTask.promise;
+
+        rendering = false;
+        statusEl.textContent = "";
+
+        if (pendingPage !== null) {
+          const next = pendingPage;
+          pendingPage = null;
+          renderPage(next);
+        }
+        setButtons();
+      }
+
+      function queueRender(num) {
+        if (rendering) pendingPage = num;
+        else renderPage(num);
+      }
+
+      function clamp(n, min, max) {
+        return Math.min(max, Math.max(min, n));
+      }
+
+      prevBtn.addEventListener("click", () => {
+        if (!pdfDoc || pageNum <= 1) return;
+        pageNum -= 1;
+        queueRender(pageNum);
+        setButtons();
+      });
+
+      nextBtn.addEventListener("click", () => {
+        if (!pdfDoc || pageNum >= pageCount) return;
+        pageNum += 1;
+        queueRender(pageNum);
+        setButtons();
+      });
+
+      zoomOutBtn.addEventListener("click", () => {
+        scale = clamp(scale - 0.15, 0.5, 3.0);
+        queueRender(pageNum);
+        setButtons();
+      });
+
+      zoomInBtn.addEventListener("click", () => {
+        scale = clamp(scale + 0.15, 0.5, 3.0);
+        queueRender(pageNum);
+        setButtons();
+      });
+
+      // Keyboard shortcuts
+      window.addEventListener("keydown", (e) => {
+        if (e.key === "ArrowLeft") prevBtn.click();
+        if (e.key === "ArrowRight") nextBtn.click();
+        if (e.key === "+" || e.key === "=") zoomInBtn.click();
+        if (e.key === "-" || e.key === "_") zoomOutBtn.click();
+      });
+
+      (async function init() {
+        try {
+          setButtons();
+          statusEl.innerHTML = `Loading… If it takes too long, you can <a href="${file}" target="_blank" rel="noopener">open the deck</a>.`;
+
+          const loadingTask = pdfjsLib.getDocument({
+            url: file,
+            // If GitHub ever serves with strict headers, this still works same-origin
+            withCredentials: false,
+          });
+
+          pdfDoc = await loadingTask.promise;
+          pageCount = pdfDoc.numPages;
+          pageNum = 1;
+
+          setButtons();
+          await renderPage(pageNum);
+        } catch (err) {
+          console.error(err);
+          statusEl.innerHTML =
+            `Couldn’t load the PDF. You can <a href="${file}" target="_blank" rel="noopener">open the deck</a> or <a href="${file}" download>download it</a>.`;
+        }
+      })();
+    </script>
+  </body>
 </html>
