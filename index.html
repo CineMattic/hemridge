@@ -10,23 +10,39 @@
         padding: 0;
         width: 100%;
         height: 100%;
-        overflow: hidden;
         background: #000;
+        overflow: hidden;
       }
-      iframe {
-        position: fixed;
-        inset: 0;
-        width: 100vw;
+
+      /* Centered “page” with a little breathing room on desktop */
+      .wrap {
+        width: 95vw;              /* ~5% total side margin on desktop */
         height: 100vh;
+        margin: 0 auto;
+      }
+
+      /* Full bleed on mobile */
+      @media (max-width: 768px) {
+        .wrap {
+          width: 100vw;
+        }
+      }
+
+      iframe {
+        width: 100%;
+        height: 100%;
         border: 0;
+        display: block;
+        background: #000;
       }
     </style>
   </head>
   <body>
-    <iframe
-      src="HemRidge_Deck_V1_WIP.pdf#view=FitH&zoom=page-width&toolbar=0&navpanes=0"
-      title="Hem Ridge Deck"
-      loading="lazy"
-    ></iframe>
+    <div class="wrap">
+      <iframe
+        src="HemRidge_Deck_V1_WIP.pdf#view=FitH&zoom=page-width&toolbar=0&navpanes=0"
+        title="Hem Ridge Deck"
+      ></iframe>
+    </div>
   </body>
 </html>
